@@ -88,9 +88,17 @@ class Resource(object):
     def __call__(self, **kwargs):
         return self._request(**kwargs)
 
-    def _request(self, **kwargs):
+    def _request(self, **all_kwargs):
         # Check for missing variables
         resource = self.interface
+
+        # Some arguments get sent as part of the url itself, not as
+        # part of the phabricator arguments for this particular
+        # request.  For instance, __profile__.
+        urlargs = {k: v for (k, v) in all_kwargs.iteritems()
+                   if k in ('__profile__',)}
+        kwargs = {k: v for (k, v) in all_kwargs.iteritems()
+                  if k not in urlargs}
 
         def validate_kwarg(key, target):
             # Always allow list
@@ -136,10 +144,10 @@ class Resource(object):
             'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-        body = urllib.urlencode({
-            "params": json.dumps(kwargs),
-            "output": self.api.response_format
-        })
+        urlargs["params"] = json.dumps(kwargs)
+        urlargs["output"] = self.api.response_format
+
+        body = urllib.urlencode(urlargs)
 
         # TODO: Use HTTP "method" from interfaces.json
         conn.request('POST', path, body, headers)
