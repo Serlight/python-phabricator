@@ -30,7 +30,7 @@ INTERFACES = json.loads(open(os.path.join(os.path.dirname(__file__), 'interfaces
 
 # Load ~/.arcrc if it exists
 try:
-    if os.path.exists(os.path.expanduser('~'), '.arcrc'):
+    if os.path.exists(os.path.join(os.path.expanduser('~'), '.arcrc')):
         ARCRC = json.loads(open(os.path.join(os.path.expanduser('~'), '.arcrc'), 'r').read())
 except ImportError, IOError:
     ARCRC = None
